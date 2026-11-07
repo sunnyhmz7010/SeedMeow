@@ -1,6 +1,6 @@
 <div align="center">
   <h1>SeedMeow</h1>
-  <p>同时监控 NodeSeek 与烧饼论坛新帖，独立筛选并推送到 MeoW</p>
+  <p>自动监控论坛新帖，筛选后推送到 MeoW</p>
 </div>
 
 <p align="center">
