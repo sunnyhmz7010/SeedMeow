@@ -1,0 +1,21 @@
+{
+  "name": "seedmeow",
+  "version": "1.0.0",
+  "description": "独立配置并监控 NodeSeek 与烧饼论坛新帖，筛选后推送到 MeoW",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sunnyhmz7010/SeedMeow.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.10"
+  }
+}
