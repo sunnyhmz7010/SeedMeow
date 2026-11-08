@@ -1,6 +1,6 @@
 <div align="center">
   <h1>SeedMeow</h1>
-  <p>自动监控论坛新帖，筛选后推送到 MeoW</p>
+  <p>自动监控两个论坛的新帖，按关注规则筛选后推送到 MeoW</p>
 </div>
 
 <p align="center">
@@ -8,97 +8,108 @@
 </p>
 
 <p align="center">
-  <a href="./package.json"><img src="https://img.shields.io/badge/version-1.0.0-3b82f6" alt="Version 1.0.0" /></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-10b981" alt="License" /></a>
+  <a href="https://github.com/sunnyhmz7010/SeedMeow/releases"><img src="https://img.shields.io/github/v/release/sunnyhmz7010/SeedMeow?label=Release&amp;color=3b82f6" alt="Release" /></a>
+  <a href="https://github.com/sunnyhmz7010/SeedMeow/blob/main/LICENSE"><img src="https://img.shields.io/github/license/sunnyhmz7010/SeedMeow?color=10b981" alt="License" /></a>
 </p>
 
 ---
 
 ## ✨ 为什么做这个项目
 
-NodeSeek 和烧饼论坛上的优惠与补货信息更新很快。SeedMeow 在一个容器中订阅两站的官方订阅源，各自使用独立的昵称、关键词、版块过滤和轮询间隔，将命中的帖子推送到 MeoW。
+NodeSeek 和烧饼论坛上的优惠、补货与交易帖子更新很快，反复刷新容易错过。SeedMeow 订阅两站的官方订阅源，按你的关注规则筛选新帖，再通过 MeoW 发送通知。
 
-- 一个容器同时监控两个论坛，也可以只启用其中一个。
-- 两站分别设置关注规则，避免某站的屏蔽词或版块设置影响另一站。
+- 关注特定地区、线路或品牌的 VPS 优惠与补货。
+- 按版块或关键词订阅交易、域名、硬件等信息。
+
+## 📸 截图预览
+
+![MeoW 帖子推送与启动通知示例](./screenshot-notification.png)
+
+MeoW 通知效果示例，截图来自 SeekMeow。
 
 ## 🚀 核心能力
 
-- 官方订阅直连：使用 NodeSeek RSS 与烧饼 Atom，无需论坛账号、Cookie 或浏览器。
-- 独立筛选：关键词、组合词、正则和版块匹配支持叠加，另有版块过滤、屏蔽词和标题/摘要范围选择。
-- 独立运行：每站使用自己的轮询任务与错误计数，一站请求失败不会阻塞另一站。
-- 独立去重与补推：按来源保存最近处理的帖子和待重试消息，容器重建后可通过命名卷继续使用。
-- 来源明确：按论坛显示 MeoW 来源名称、图标和中文版块，日志包含来源名称。
-- 自检与更新提示：每站可设置自检间隔，并检查 SeedMeow 更新。
+- 双源监控：直连 NodeSeek RSS 与烧饼论坛 Atom，可同时监控两站，也可只启用一个来源。
+- 独立配置：每站分别设置 MeoW 昵称、筛选规则和轮询间隔，订阅源请求失败互不阻塞。
+- 规则筛选：支持关键词、组合词、正则和版块匹配，可按标题或摘要筛选，并设置版块过滤与屏蔽词。
+- MeoW 推送：通知包含来源名称、图标、中文版块和帖子链接，两站可使用同一个昵称。
+- 去重补推：按来源保存已处理记录和待重试帖子，重启后继续去重与补推。
+- 运行自检：支持启动通知、定期自检、订阅源异常与恢复提醒，以及版本更新提示。
 
 ## ⚡ 快速开始
 
 ### 📋 前置要求
 
-- Docker Engine 和 Docker Compose。
-- 能访问 `https://rss.nodeseek.com/`、`https://sb.sb/atom.xml` 和 `https://api.chuckfang.com` 的网络。
-- 一个或两个 MeoW 昵称；两站可以填写同一个昵称。
+- Docker：支持 Linux amd64 或 arm64 容器的 Docker Engine；使用 Compose 部署还需 Docker Compose。
+- MeoW：准备可接收通知的 MeoW 昵称；两个来源可以共用昵称。
+- 网络：能够访问 `ghcr.io`、`https://rss.nodeseek.com/`、`https://sb.sb/atom.xml` 和 `https://api.chuckfang.com`。
 
 ### 📦 安装与运行
 
-#### 🐳 Docker Compose
-
-1. 解压源码包，进入包含 `compose.yaml` 的目录。当前交付为源码，默认从本地构建镜像。
-2. 复制配置示例，并将两个 `MEOW_NICKNAME` 的值改成你的实际 MeoW 昵称：
+#### 🐳 Docker 部署
 
 ```bash
-cp .env.example .env
+docker run -d \
+  --name seedmeow \
+  --restart unless-stopped \
+  --stop-timeout 60 \
+  -e SOURCES="nodeseek,sb" \
+  -e NODESEEK_MEOW_NICKNAME="你的MeoW昵称" \
+  -e NODESEEK_KEYWORDS="VPS,补货" \
+  -e SB_MEOW_NICKNAME="你的MeoW昵称" \
+  -e SB_KEYWORDS="VPS,优惠" \
+  -v seedmeow-data:/app/data \
+  ghcr.io/sunnyhmz7010/seedmeow:1.0.0
 ```
 
-Windows PowerShell 可使用：
-
-```powershell
-Copy-Item .env.example .env
-```
-
-3. 启动并查看日志：
+也可以使用 Docker Compose：根目录已提供 `compose.yaml`，执行以下命令即可启动：
 
 ```bash
-docker compose up -d --build
-docker compose logs -f
+docker compose up -d
 ```
 
-正常情况下会分别收到两站的 SeedMeow 启动通知。日志出现各来源的“监控已启动”和“首次扫描建立基线”后，会开始关注后续新帖。MeoW 启动测试失败会记录错误并继续监控；配置错误或损坏的状态文件会导致启动失败。
+将命令中的两处 `你的MeoW昵称` 替换为实际昵称，并按需调整关键词。使用 Compose 时，在仓库根目录的 `compose.yaml` 中修改相同配置，再执行上面的启动命令。
 
-容器不监听端口，不需要端口映射。Compose 自动创建 `seedmeow-data` 命名卷并挂载至 `/app/data`。
+示例同时启用两站：NodeSeek 匹配“VPS”或“补货”，烧饼匹配“VPS”或“优惠”。容器无需映射端口，运行记录保存在挂载至 `/app/data` 的 `seedmeow-data` 命名卷中。
+
+已有部署需要沿用原数据卷时，将命令中的卷名与 Compose 的 `volumes.seedmeow-data.name` 一并设为原名称。
+
+查看启动与推送日志：
+
+```bash
+docker logs -f seedmeow
+```
+
+启动时会尝试发送各来源的自检通知。日志出现“监控已启动”和“首次扫描建立基线”后，会开始处理后续新帖。
 
 ## 📖 使用说明
 
-### 📋 独立配置
+### 📋 来源与配置
 
-只有 `SOURCES` 为全局变量，默认 `nodeseek,sb`。设为 `nodeseek` 或 `sb` 可仅启用一个来源；停用来源的配置不会校验。
+全局变量 `SOURCES` 默认是 `nodeseek,sb`。设置为 `nodeseek` 或 `sb` 可只启用一个来源；停用来源的配置不会校验。
 
-其余配置必须分别带 `NODESEEK_` 或 `SB_` 前缀。例如 `NODESEEK_KEYWORDS=VPS`、`SB_KEYWORDS=补货`。两站配置独立。
+其余变量使用对应前缀：NodeSeek 为 `NODESEEK_`，烧饼为 `SB_`。例如 `NODESEEK_KEYWORDS=VPS`、`SB_KEYWORDS=补货`。请在 Docker Run 的 `-e` 参数或 `compose.yaml` 的 `environment` 中设置配置。
 
-下表使用变量后缀；填写到 `.env` 时务必加上对应前缀。
+下表列出变量后缀，使用时加上对应前缀。
 
 | 后缀 | 默认值 | 说明 |
 | --- | --- | --- |
 | `MEOW_NICKNAME` | 必填 | MeoW 昵称，不能包含 `/` |
 | `CHECK_INTERVAL_SECONDS` | NodeSeek `5`；烧饼 `60` | 轮询秒数，整数 1–2147483 |
-| `CATEGORIES` | `all` | 所有规则的版块过滤；多个标识用英文逗号分隔 |
-| `MATCH_SCOPE` | `all` | `title`、`summary` 或 `all`；屏蔽词也在所选范围内匹配 |
-| `KEYWORDS` | 空 | 英文逗号分隔；命中任一关键词 |
-| `KEYWORD_GROUPS` | `[]` | JSON 二维数组；组内全部命中，组间任一命中 |
-| `REGEX_PATTERNS` | `[]` | JSON 字符串数组；使用 `iu` 标志，任一正则命中 |
-| `PUSH_CATEGORY` | 空 | `all` 或逗号分隔的版块标识；命中版块直接构成正向规则 |
-| `BLOCK_KEYWORDS` | 空 | 英文逗号分隔；命中任一词则拒绝推送 |
+| `KEYWORDS` | 空 | 英文逗号分隔，命中任一关键词即可 |
+| `KEYWORD_GROUPS` | `[]` | JSON 二维数组，组内全部命中、组间任一命中 |
+| `REGEX_PATTERNS` | `[]` | JSON 字符串数组，使用 `iu` 标志，任一正则命中即可 |
+| `PUSH_CATEGORY` | 空 | `all` 或逗号分隔的版块标识，命中版块即可构成正向规则 |
+| `CATEGORIES` | `all` | 对所有正向规则生效的版块过滤，多个标识用英文逗号分隔 |
+| `BLOCK_KEYWORDS` | 空 | 英文逗号分隔，命中任一屏蔽词即拒绝推送 |
+| `MATCH_SCOPE` | `all` | `title`、`summary` 或 `all`，同样决定屏蔽词的匹配范围 |
 | `PUSH_EXISTING` | `false` | 首次成功扫描是否推送已有命中帖 |
-| `SHOW_LINK_URL` | `false` | 是否在正文底部附上可复制的链接 |
+| `SHOW_LINK_URL` | `false` | 是否在正文底部额外附上可复制的链接 |
 | `HEALTH_CHECK_MINUTES` | `1440` | 自检分钟数，整数 0–1440；0 关闭定期自检 |
 
-每个已启用来源的 `KEYWORDS`、`KEYWORD_GROUPS`、`REGEX_PATTERNS`、`PUSH_CATEGORY` 至少填写一种。它们之间为“或”关系；版块过滤和屏蔽词可以否决所有正向规则。
+每个启用的来源至少配置 `KEYWORDS`、`KEYWORD_GROUPS`、`REGEX_PATTERNS`、`PUSH_CATEGORY` 中的一项。四类正向规则是“或”关系；版块过滤和屏蔽词可以否决所有命中结果。
 
-JSON 示例：
-
-```dotenv
-NODESEEK_KEYWORD_GROUPS=[["香港","VPS"],["日本","线路"]]
-SB_REGEX_PATTERNS=["年付\\s*\\d+"]
-```
+组合词示例：将 `NODESEEK_KEYWORD_GROUPS` 设为 `[["香港","VPS"],["日本","线路"]]`。正则示例：将 `SB_REGEX_PATTERNS` 设为 `["年付\\s*\\d+"]`。JSON 配置需要作为字符串传入，并保留其中的引号与转义。
 
 ### 🗂️ 版块标识
 
@@ -107,53 +118,41 @@ SB_REGEX_PATTERNS=["年付\\s*\\d+"]
 | NodeSeek | `daily` 日常、`tech` 技术、`info` 情报、`review` 测评、`trade` 交易、`carpool` 拼车、`promo` 推广、`life` 生活、`dev` Dev、`photo-share` 贴图、`expose` 曝光、`inner` 内版、`sandbox` 沙盒 |
 | 烧饼 | `general` 综合、`ai` AI、`domains` 域名、`hosting` 主机、`hardware` 硬件、`trade` 交易、`promotion` 推广、`discounts` 优惠、`share` 分享、`tech` 技术、`jobs` 工作、`invest` 投资、`announcement` 公告 |
 
-版块标识分别校验，例如 NodeSeek 不接受 `hosting`，烧饼不接受 `daily`。
-
-### 💾 运行与状态
-
-首次成功扫描默认将当时全部条目记为基线，不推送已有帖子。需要推送首次扫描中的命中帖时，单独设置对应来源的 `PUSH_EXISTING=true`。
-
-后续修改 `.env` 后运行：
-
-```bash
-docker compose up -d
-```
-
-普通 `docker compose down` 会保留命名卷；`docker compose down -v` 会删除该卷及其中的去重、待重试状态。
+版块标识按来源分别校验。修改配置后，使用原部署方式重新创建容器以应用新值。
 
 ## 🧠 功能细节
 
-- 两种解析器输出统一的帖子字段，分别解析 RSS 与 Atom 并清洗摘要。
-- 状态分别保存为 `/app/data/nodeseek/state.json`、`/app/data/sb/state.json`；每站最多保存 1000 个已处理 ID 和 1000 条待重试消息。
-- 同一帖子 ID 可以在两站各处理一次。状态使用临时文件及重命名保存；读取、格式或写入错误会明确报错并退出。
-- 首次成功扫描建立各自基线；请求失败不会建立基线或推进去重状态。
-- 推送失败的帖子进入对应来源的待重试队列，在该来源后续成功轮询时重试，重启后仍可补推。MeoW 明确返回敏感词 403 时，丢弃该帖并标记已处理。
-- 启动和自检通知失败只记录日志，不加入帖子补推队列；不影响后续帖子监控。连续两次订阅源异常会尝试通知，恢复后尝试发送恢复通知。
-- 自检任务按来源执行，同一来源的自检不会重叠；更新检查失败会记录警告，不宣称已经是最新版。
-- 收到 `SIGTERM` 或 `SIGINT` 后停止两站调度，等待当前推送、状态保存和已开始的自检完成，再退出；Compose 预留 60 秒退出时间。
+- 首次扫描：默认将各来源当时已有帖子记为基线，不推送历史帖子；可单独设置对应来源的 `PUSH_EXISTING=true`。
+- 状态保存：两站分别使用 `/app/data/nodeseek/state.json` 和 `/app/data/sb/state.json`，各保留最多 1000 个已处理 ID 和 1000 条待重试消息。
+- 失败补推：帖子推送失败后进入该来源的待重试队列，在后续成功轮询时补推；MeoW 明确返回敏感词 403 时会丢弃该帖并标记已处理。
+- 故障处理：订阅源连续两次异常会尝试通知，恢复后尝试发送恢复通知；配置或状态文件错误会明确报错并退出。
+- 自检行为：启动和定期自检通知失败会记录日志并继续监控，自检通知不进入帖子补推队列，同一来源的定期自检不会重叠。
+- 停止与存储：收到 `SIGTERM` 或 `SIGINT` 后等待当前任务结束再退出，容器预留 60 秒停止时间；删除容器会保留命名卷，删除卷会清空去重和补推记录。
 
 ## 🧱 技术栈
 
-- Node.js 24+：ESM、原生 `fetch`、`node --test` 和任务调度。
-- `@xmldom/xmldom` 0.9.10：RSS、Atom 与 HTML 摘要解析。
-- Docker：`node:24-alpine` 镜像，以非 root 用户运行。
+- JavaScript：使用 ESM 编写监控、匹配与推送逻辑。
+- Node.js 24+：提供原生 `fetch`、任务调度和 `node --test` 测试运行器。
+- `@xmldom/xmldom` 0.9.10：解析 RSS、Atom 和 HTML 摘要。
+- Docker：基于 `node:24-alpine` 构建镜像，以非 root 用户运行，并通过 Compose 部署。
 
 ## 🗂️ 项目结构
 
 ```text
 SeedMeow/
 ├── src/
-│   ├── sources/       # 两站解析器、来源元数据
-│   ├── index.js       # 双来源编排、信号处理和自检
+│   ├── sources/       # 两站解析器与来源信息
+│   ├── index.js       # 启动编排、信号处理与自检
 │   ├── config.js      # 按来源解析和校验配置
-│   ├── matcher.js     # 共用匹配逻辑
-│   ├── meow.js        # 按来源格式化及推送
-│   ├── monitor.js     # 独立轮询、去重及补推
+│   ├── matcher.js     # 帖子匹配规则
+│   ├── meow.js        # 消息格式与推送
+│   ├── monitor.js     # 轮询、去重与补推
 │   └── state.js       # 状态持久化
 ├── test/              # 离线回归测试
-├── .env.example       # 双来源完整配置示例
-├── compose.yaml       # 本地构建和命名卷
-└── Dockerfile
+├── screenshot-notification.png  # MeoW 通知示例
+├── compose.yaml       # 镜像部署与运行配置
+├── Dockerfile
+└── package.json
 ```
 
 ## 👨‍💻 本地开发
@@ -161,23 +160,27 @@ SeedMeow/
 ### 🧰 环境
 
 - 开发平台：Windows、Linux 或 macOS。
-- Node.js：24 或更高版本，npm。
-- 测试使用模拟订阅源和模拟 MeoW 响应，不发送真实通知。
+- Node.js：24 或更高版本，包含 npm。
 
-### ⚙️ 命令
+### 🧪 安装与测试
 
 ```bash
 npm ci
 npm test
 ```
 
-本地直接运行时，将 `.env.example` 复制为 `.env` 并修改昵称，再执行：
+### ▶️ 本地运行
+
+以下命令使用 Bash，仅启用 NodeSeek；将昵称替换为实际值。
 
 ```bash
-node --env-file=.env src/index.js
+SOURCES=nodeseek \
+NODESEEK_MEOW_NICKNAME="你的MeoW昵称" \
+NODESEEK_KEYWORDS="VPS,补货" \
+npm start
 ```
 
-状态写入当前工作目录的 `data/nodeseek/` 和 `data/sb/`。
+状态保存在当前工作目录的 `data/` 中。
 
 ## 🔐 安全报告
 

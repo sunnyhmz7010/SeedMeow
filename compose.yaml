@@ -1,14 +1,18 @@
 services:
   seedmeow:
-    build: .
-    image: seedmeow:local
+    image: ghcr.io/sunnyhmz7010/seedmeow:1.0.0
     container_name: seedmeow
     restart: unless-stopped
     stop_grace_period: 60s
-    env_file:
-      - .env
+    environment:
+      SOURCES: "nodeseek,sb"
+      NODESEEK_MEOW_NICKNAME: "你的MeoW昵称"
+      NODESEEK_KEYWORDS: "VPS,补货"
+      SB_MEOW_NICKNAME: "你的MeoW昵称"
+      SB_KEYWORDS: "VPS,优惠"
     volumes:
       - seedmeow-data:/app/data
 
 volumes:
   seedmeow-data:
+    name: seedmeow-data
