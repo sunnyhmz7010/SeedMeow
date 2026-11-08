@@ -1,6 +1,6 @@
 <div align="center">
   <h1>SeedMeow</h1>
-  <p>自动监控两个论坛的新帖，按关注规则筛选后推送到 MeoW</p>
+  <p>自动监控论坛新帖，筛选后推送到 MeoW</p>
 </div>
 
 <p align="center">
@@ -24,8 +24,6 @@ NodeSeek 和烧饼论坛上的优惠、补货与交易帖子更新很快，反�
 ## 📸 截图预览
 
 ![MeoW 帖子推送与启动通知示例](./screenshot-notification.png)
-
-MeoW 通知效果示例，截图来自 SeekMeow。
 
 ## 🚀 核心能力
 
@@ -66,18 +64,6 @@ docker run -d \
 
 ```bash
 docker compose up -d
-```
-
-将命令中的两处 `你的MeoW昵称` 替换为实际昵称，并按需调整关键词。使用 Compose 时，在仓库根目录的 `compose.yaml` 中修改相同配置，再执行上面的启动命令。
-
-示例同时启用两站：NodeSeek 匹配“VPS”或“补货”，烧饼匹配“VPS”或“优惠”。容器无需映射端口，运行记录保存在挂载至 `/app/data` 的 `seedmeow-data` 命名卷中。
-
-已有部署需要沿用原数据卷时，将命令中的卷名与 Compose 的 `volumes.seedmeow-data.name` 一并设为原名称。
-
-查看启动与推送日志：
-
-```bash
-docker logs -f seedmeow
 ```
 
 启动时会尝试发送各来源的自检通知。日志出现“监控已启动”和“首次扫描建立基线”后，会开始处理后续新帖。
