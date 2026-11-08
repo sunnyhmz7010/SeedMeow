@@ -1,6 +1,6 @@
 services:
   seedmeow:
-    image: ghcr.io/sunnyhmz7010/seedmeow:1.0.0
+    image: ghcr.io/sunnyhmz7010/seedmeow:latest
     container_name: seedmeow
     restart: unless-stopped
     stop_grace_period: 60s
