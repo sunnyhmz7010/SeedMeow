@@ -57,7 +57,7 @@ docker run -d \
   -e SB_MEOW_NICKNAME="你的MeoW昵称" \
   -e SB_KEYWORDS="VPS,优惠" \
   -v seedmeow-data:/app/data \
-  ghcr.io/sunnyhmz7010/seedmeow:1.0.0
+  ghcr.io/sunnyhmz7010/seedmeow:latest
 ```
 
 也可以使用 Docker Compose：根目录已提供 `compose.yaml`，执行以下命令即可启动：
