@@ -39,7 +39,7 @@ export class StateStore {
       if (!Array.isArray(parsed.processedIds) || parsed.processedIds.some((id) => typeof id !== 'string')) {
         throw new Error('processedIds 格式无效');
       }
-      const pendingItems = parsed.pendingItems ?? [];
+      const pendingItems = parsed.pendingItems;
       if (!Array.isArray(pendingItems)) throw new Error('pendingItems 格式无效');
       this.#ids = [...new Set(parsed.processedIds)].slice(-this.limit);
       this.#set = new Set(this.#ids);

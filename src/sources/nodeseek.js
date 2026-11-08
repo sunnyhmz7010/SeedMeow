@@ -91,7 +91,7 @@ export async function fetchFeed({
   timeoutMs = 15000
 } = {}) {
   const response = await fetchImpl(RSS_URL, {
-    headers: { 'user-agent': 'seekmeow/1.0' },
+    headers: { 'user-agent': 'seedmeow/1.0' },
     signal: AbortSignal.timeout(timeoutMs)
   });
   if (!response.ok) throw new Error(`RSS 请求失败: HTTP ${response.status}`);

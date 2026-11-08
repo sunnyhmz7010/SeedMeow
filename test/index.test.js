@@ -270,7 +270,7 @@ test('状态写入失败结束整个应用，并等待另一来源停止', async
   assert.deepEqual(stopped, ['nodeseek']);
 });
 
-test('更新检查使用新仓库且正确比较版本，网络失败只记录警告', async () => {
+test('更新检查使用 SeedMeow 仓库且正确比较版本，网络失败只记录警告', async () => {
   const warnings = [];
   const logger = { ...quiet, warn: (message) => warnings.push(message) };
   let requestedUrl;

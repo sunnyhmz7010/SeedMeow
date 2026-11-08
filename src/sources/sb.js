@@ -205,7 +205,7 @@ export async function fetchFeed({
   timeoutMs = 15000
 } = {}) {
   const response = await fetchImpl(FEED_URL, {
-    headers: { 'user-agent': 'sbmeow/1.0' },
+    headers: { 'user-agent': 'seedmeow/1.0' },
     signal: AbortSignal.timeout(timeoutMs)
   });
   if (!response.ok) throw new Error(`订阅源请求失败: HTTP ${response.status}`);

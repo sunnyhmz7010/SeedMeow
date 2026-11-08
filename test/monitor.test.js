@@ -57,10 +57,16 @@ test('待重试帖子会随状态持久化', async (t) => {
   assert.deepEqual(reloaded.pendingItems(), []);
 });
 
-test('损坏状态文件明确失败', async (t) => {
+test('状态 JSON 无效或缺少必要数组时明确失败', async (t) => {
   const { file, state } = await tempState(t);
-  await writeFile(file, '{invalid', 'utf8');
-  await assert.rejects(() => state.load(), /状态文件/);
+  for (const content of [
+    '{invalid',
+    JSON.stringify({ processedIds: [] }),
+    JSON.stringify({ processedIds: [], pendingItems: null })
+  ]) {
+    await writeFile(file, content, 'utf8');
+    await assert.rejects(() => state.load(), /状态文件/);
+  }
 });
 
 test('构造 MeoW 纯文本消息并 POST JSON', async () => {
